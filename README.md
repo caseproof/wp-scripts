@@ -64,7 +64,11 @@ find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.
 find . -regex "^\.\/app.*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
 /usr/bin/php ./script/i18n/makepot.php wp-plugin . ./i18n/memberpress.pot
 ```
+And (if you have a mothership project associated with this git repo)
 
+```
+./script deploy 1.1.1b7
+```
 
 
 
