@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 21
+/!svn/ver/104/wpshell
+END
+WATCHME
+K 25
+svn:wc:ra_dav:version-url
+V 28
+/!svn/ver/92/wpshell/WATCHME
+END
+module-hello.php
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/!svn/ver/49/wpshell/module-hello.php
+END
+module-wpreference.php
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/!svn/ver/49/wpshell/module-wpreference.php
+END
+wpshell
+K 25
+svn:wc:ra_dav:version-url
+V 28
+/!svn/ver/49/wpshell/wpshell
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 28
+/!svn/ver/49/wpshell/LICENSE
+END
+wpshell.php
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/!svn/ver/104/wpshell/wpshell.php
+END
+module-wpdb.php
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/!svn/ver/49/wpshell/module-wpdb.php
+END
+module-fshell.php
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/!svn/ver/49/wpshell/module-fshell.php
+END
+wpshell-config.php
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/!svn/ver/49/wpshell/wpshell-config.php
+END

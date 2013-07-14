@@ -1,0 +1,19 @@
+#!/usr/bin/php
+<?php
+if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
+
+if(!isset($argv[1])) { die("USAGE: ./script/deploy [version-number]\n"); }
+
+if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
+
+include_once('./script/wp-script-config.php');
+
+$commands = array();
+$commands[] = '/usr/bin/git tag ' . $argv[1];
+$commands[] = '/usr/bin/git push origin ' . $argv[1];
+$commands[] = '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/deploy/' . MOTHERSHIP_PROJECT_ID . '/' . $argv[1];
+
+foreach($commands as $command) { echo "\n\n$command\n"; system($command); sleep(1); }
+
+echo "\n\n";
+
