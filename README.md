@@ -67,7 +67,7 @@ find . -regex "^\.\/app.*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.
 And (if you have a mothership project associated with this git repo)
 
 ```
-./script deploy 1.1.1b7
+./script/deploy 1.1.1b7
 ```
 
 
