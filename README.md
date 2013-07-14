@@ -19,7 +19,7 @@ git clone https://github.com/Caseproof/wp-scripts script
 ### Put 'script' into your project's gitignore ... don't want it to be included do we? :)
 
 ```
-echo 'script' >> .gitignore
+echo 'script/' >> .gitignore
 ```
 
 ### Copy the sample config to the actual config
@@ -39,11 +39,11 @@ vim ./script/wp-script-config.php
 ```
 ./script/console
 coolio@booyah:~/bevisshanks.com/wp-content/plugins/memberpress-importer$ ./script/console
-coolio@booyah.caseproof.com:memberpress-importer > echo get_option('home');
+coolio@bevisshanks.com:memberpress-importer > echo get_option('home');
 
 http://bevisshanks.com
 
-coolio@booyah.caseproof.com:memberpress-importer > 
+coolio@bevisshanks.com:memberpress-importer > 
 ```
 
 And
@@ -59,7 +59,10 @@ No syntax errors detected in ./importers/MpimpTransactionsImporter.php
 And
 
 ```
-./script/i18n
+./script/mki18n
+find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
+find . -regex "^\.\/app.*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
+/usr/bin/php ./script/i18n/makepot.php wp-plugin . ./i18n/memberpress.pot
 ```
 
 
