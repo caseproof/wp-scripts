@@ -11,6 +11,7 @@ include_once('./script/wp-script-config.php');
 $commands = array();
 $commands[] = '/usr/bin/perl -p -i -e \'s/^Version: (.*)$/Version: ' . $argv[1] . '/\' ./' . WP_SCRIPT_TEXTDOMAIN . '.php';
 $commands[] = './script/mki18n';
+$commands[] = './script/rmlb';
 $commands[] = '/usr/bin/git commit -am \'Bump to version ' . $argv[1] . '\'';
 $commands[] = '/usr/bin/git push origin master';
 $commands[] = '/usr/bin/git tag ' . $argv[1];
