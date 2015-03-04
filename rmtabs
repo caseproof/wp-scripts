@@ -1,0 +1,7 @@
+echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name \"*.php\"`"
+/usr/bin/perl -p -i -e 's/\t/  /g' `find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name "*.php"`
+echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name \"*.css\"`"
+/usr/bin/perl -p -i -e 's/\t/  /g' `find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name "*.css"`
+echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name \"*.js\"`"
+/usr/bin/perl -p -i -e 's/\t/  /g' `find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name "*.js"`
+
