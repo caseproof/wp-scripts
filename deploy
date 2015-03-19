@@ -2,23 +2,34 @@
 <?php
 if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
 
-if(!isset($argv[1])) { die("USAGE: ./script/deploy [version-number]\n"); }
-
 if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
-
 include_once('./script/wp-script-config.php');
 
+if(!isset($argv[1])) { die("USAGE: ./script/deploy [version-number]\n"); }
+
+$my_version = $argv[1];
+
+if(!preg_match('/\d+\.\d+\.\d+([a-z]+)\d+/i',$my_version,$m)) {
+  exit("Improper Version Format\n\n");
+}
+
+$my_branch = 'master'; 
+if(isset($m[1]) && !in_array($m[1], array('a','b','rc'))) {
+  $my_branch = $m[1]; 
+}
+
 $commands = array();
-$commands[] = '/usr/bin/perl -p -i -e \'s/^Version: (.*)$/Version: ' . $argv[1] . '/\' ./' . WP_SCRIPT_TEXTDOMAIN . '.php';
+$commands[] = "/usr/bin/git checkout {$my_branch}";
+$commands[] = "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . WP_SCRIPT_TEXTDOMAIN . '.php';
 $commands[] = './script/mki18n';
 $commands[] = './script/rmlb';
 $commands[] = './script/cleartrailingwhitespace';
 $commands[] = './script/rmtabs';
-$commands[] = '/usr/bin/git commit -am \'Bump to version ' . $argv[1] . '\'';
-$commands[] = '/usr/bin/git push origin master';
-$commands[] = '/usr/bin/git tag ' . $argv[1];
-$commands[] = '/usr/bin/git push origin ' . $argv[1];
-$commands[] = '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/deploy/' . MOTHERSHIP_PROJECT_ID . '/' . $argv[1];
+$commands[] = "/usr/bin/git commit -am 'Bumping {$my_branch} to version {$my_version}'";
+$commands[] = "/usr/bin/git push origin {$my_branch}";
+$commands[] = "/usr/bin/git tag {$my_version}";
+$commands[] = "/usr/bin/git push origin {$my_version}";
+$commands[] = '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/deploy/' . MOTHERSHIP_PROJECT_ID . '/' . $my_version;
 
 foreach($commands as $command) { echo "\n$command\n"; system($command); sleep(1); }
 
