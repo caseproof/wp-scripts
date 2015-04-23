@@ -9,7 +9,7 @@ if(!isset($argv[1])) { die("USAGE: ./script/deploy [version-number]\n"); }
 
 $my_version = $argv[1];
 
-if(!preg_match('/\d+\.\d+\.\d+([a-z]+)\d+/i',$my_version,$m)) {
+if(!preg_match('/\d+\.\d+\.\d+([a-z]+\d+)?/i',$my_version,$m)) {
   exit("Improper Version Format\n\n");
 }
 
