@@ -3,7 +3,7 @@
  * Console application, which adds metadata strings from
  * a WordPress extension to a POT file
  *
- * @version $Id: pot-ext-meta.php 24564 2015-02-01 20:44:06Z ocean90 $
+ * @version $Id$
  * @package wordpress-i18n
  * @subpackage tools
  */

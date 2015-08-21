@@ -3,7 +3,7 @@
  * Console application, which extracts or replaces strings for
  * translation, which cannot be gettexted
  *
- * @version $Id: not-gettexted.php 24565 2015-02-01 20:48:14Z ocean90 $
+ * @version $Id$
  * @package wordpress-i18n
  * @subpackage tools
  */

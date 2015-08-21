@@ -2,7 +2,7 @@
 /**
  * Tests for not-gettexted.php
  *
- * @version $Id: test_not-gettexted.php 24565 2015-02-01 20:48:14Z ocean90 $
+ * @version $Id$
  * @package wordpress-i18n
  * @subpackage tools
  */

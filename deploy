@@ -18,9 +18,13 @@ if(isset($m[2]) && !in_array($m[2], array('a','b','rc'))) {
   $my_branch = $m[1]; 
 }
 
+if(!defined('MY_PLUGIN_MAIN_FILE')) {
+  define('MY_PLUGIN_MAIN_FILE', WP_SCRIPT_TEXTDOMAIN . '.php');
+}
+
 $commands = array();
 $commands[] = "/usr/bin/git checkout {$my_branch}";
-$commands[] = "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . WP_SCRIPT_TEXTDOMAIN . '.php';
+$commands[] = "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . MY_PLUGIN_MAIN_FILE;
 $commands[] = './script/mki18n';
 $commands[] = './script/rmlb';
 $commands[] = './script/cleartrailingwhitespace';
