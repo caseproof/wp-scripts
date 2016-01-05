@@ -15,7 +15,7 @@ if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $my_version, $m)) {
 
 $my_branch = 'master'; 
 if(isset($m[2]) && !in_array($m[2], array('a','b','rc'))) {
-  $my_branch = $m[1]; 
+  $my_branch = $m[2]; 
 }
 
 if(!defined('MY_PLUGIN_MAIN_FILE')) {
