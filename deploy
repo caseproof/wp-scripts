@@ -13,6 +13,9 @@ if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $my_version, $m)) {
   exit("Improper Version Format\n\n");
 }
 
+echo "!! Deploying version \"{$my_version}\"\n";
+//print_r($m);
+
 $my_branch = 'master'; 
 if(isset($m[2]) && !in_array($m[2], array('a','b','rc'))) {
   $my_branch = $m[2]; 
@@ -21,6 +24,8 @@ if(isset($m[2]) && !in_array($m[2], array('a','b','rc'))) {
 if(!defined('MY_PLUGIN_MAIN_FILE')) {
   define('MY_PLUGIN_MAIN_FILE', WP_SCRIPT_TEXTDOMAIN . '.php');
 }
+
+echo "!! Deploying from branch \"{$my_branch}\"\n";
 
 $commands = array();
 $commands[] = "/usr/bin/git checkout {$my_branch}";
