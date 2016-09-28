@@ -1,0 +1,27 @@
+#!/usr/bin/php
+<?php
+if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
+
+if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
+include_once('./script/wp-script-config.php');
+
+if(!isset($argv[1])) { die("USAGE: ./script/undeploy [version-number]\n"); }
+
+$my_version = $argv[1];
+
+if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $my_version, $m)) {
+  exit("Improper Version Format\n\n");
+}
+
+echo "!! Un-Deploying version \"{$my_version}\"\n";
+
+$commands = array(
+  "/usr/bin/git tag -d {$my_version}",
+  "/usr/bin/git push origin :refs/tags/{$my_version}",
+  '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/undeploy/' . MOTHERSHIP_PROJECT_ID . '/' . $my_version,
+);
+
+foreach($commands as $command) { echo "\n$command\n"; system($command); sleep(1); }
+
+echo "\n\n";
+
