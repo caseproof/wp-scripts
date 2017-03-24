@@ -27,19 +27,21 @@ if(!defined('MY_PLUGIN_MAIN_FILE')) {
 
 echo "!! Deploying release \"{$my_version}\"\n";
 
-$commands = array();
-$commands[] = "/usr/bin/git checkout {$my_branch}";
-$commands[] = "/usr/bin/git flow release start '{$my_version}'";
-$commands[] = "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . MY_PLUGIN_MAIN_FILE;
-$commands[] = './script/mki18n';
-$commands[] = './script/rmlb';
-$commands[] = './script/cleartrailingwhitespace';
-$commands[] = './script/rmtabs';
-$commands[] = "/usr/bin/git commit -am 'Deploying version {$my_version}'";
-$commands[] = "/usr/bin/git flow release finish '{$my_version}'";
-$commands[] = "/usr/bin/git push origin :";
-$commands[] = "/usr/bin/git push origin --tags";
-$commands[] = '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/deploy/' . MOTHERSHIP_PROJECT_ID . '/' . $my_version;
+$commands = [
+  "/usr/bin/git checkout {$my_branch}",
+  "/usr/bin/git flow release start '{$my_version}'",
+  "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . MY_PLUGIN_MAIN_FILE,
+  './script/mki18n',
+  './script/rmlb',
+  './script/cleartrailingwhitespace',
+  './script/rmtabs',
+  "/usr/bin/git commit -am 'Deploying version {$my_version}'",
+  "echo 'Run the following commands now:'",
+  "echo \"/usr/bin/git flow release finish '{$my_version}'\"",
+  "echo \"/usr/bin/git push origin :\"",
+  "echo \"/usr/bin/git push origin --tags\"",
+  "echo \"/usr/bin/curl -d \\\"apikey=" . MOTHERSHIP_API_KEY . "\\\" " . MOTHERSHIP_URL . "/versions/deploy/" . MOTHERSHIP_PROJECT_ID . "/" . $my_version . '"'
+];
 
 foreach($commands as $command) { echo "\n$command\n"; system($command); sleep(1); }
 
