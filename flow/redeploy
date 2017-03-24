@@ -1,0 +1,50 @@
+#!/usr/bin/php
+<?php
+if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
+
+if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
+include_once('./script/wp-script-config.php');
+
+if(!isset($argv[1])) { die("USAGE: ./script/flow/redeploy [version-number]\n"); }
+
+$my_version = $argv[1];
+
+if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $my_version, $m)) {
+  exit("Improper Version Format\n\n");
+}
+
+echo "!! Re-Deploying version \"{$my_version}\"\n";
+//print_r($m);
+
+$my_branch = 'develop'; 
+if(isset($m[2]) && !in_array($m[2], array('a','b','rc'))) {
+  $my_branch = $m[2]; 
+}
+
+if(!defined('MY_PLUGIN_MAIN_FILE')) {
+  define('MY_PLUGIN_MAIN_FILE', WP_SCRIPT_TEXTDOMAIN . '.php');
+}
+
+echo "!! Re-Deploying \"{$my_version}\"\n";
+
+$commands = array(
+  "/usr/bin/git tag -d {$my_version}", // Get rid of old tag
+  "/usr/bin/git push origin :refs/tags/{$my_version}", // Get rid of old remote tag
+  "/usr/bin/git checkout {$my_branch}",
+  "/usr/bin/git flow release start '{$my_version}'",
+  "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . MY_PLUGIN_MAIN_FILE,
+  './script/mki18n',
+  './script/rmlb',
+  './script/cleartrailingwhitespace',
+  './script/rmtabs',
+  "/usr/bin/git commit -am 'Re-Deploying version {$my_version}'",
+  "/usr/bin/git flow release finish '{$my_version}'",
+  "/usr/bin/git push origin :",
+  "/usr/bin/git push origin --tags",
+  '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/redeploy/' . MOTHERSHIP_PROJECT_ID . '/' . $my_version,
+);
+
+foreach($commands as $command) { echo "\n$command\n"; system($command); sleep(1); }
+
+echo "\n\n";
+
