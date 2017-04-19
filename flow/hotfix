@@ -1,0 +1,49 @@
+#!/usr/bin/php
+<?php
+if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
+
+if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
+include_once('./script/wp-script-config.php');
+
+if(!isset($argv[1])) { die("USAGE: ./script/flow/hotfix [version-number]\n"); }
+
+$my_version = $argv[1];
+
+if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $my_version, $m)) {
+  exit("Improper Version Format\n\n");
+}
+
+echo "!! GIT Flow Deploying version \"{$my_version}\"\n";
+//print_r($m);
+
+$my_branch = 'master'; 
+if(isset($m[2]) && !in_array($m[2], array('a','b','rc'))) {
+  $my_branch = $m[2]; 
+}
+
+if(!defined('MY_PLUGIN_MAIN_FILE')) {
+  define('MY_PLUGIN_MAIN_FILE', WP_SCRIPT_TEXTDOMAIN . '.php');
+}
+
+echo "!! Deploying release \"{$my_version}\"\n";
+
+$commands = [
+  "/usr/bin/git checkout {$my_branch}",
+  "/usr/bin/git flow hotfix start '{$my_version}'",
+  "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$my_version}/' ./" . MY_PLUGIN_MAIN_FILE,
+  './script/mki18n',
+  './script/rmlb',
+  './script/cleartrailingwhitespace',
+  './script/rmtabs',
+  "/usr/bin/git commit -am 'Deploying version {$my_version}'",
+  "echo 'Run the following commands now:'",
+  "echo \"/usr/bin/git flow hotfix finish '{$my_version}'\"",
+  "echo \"/usr/bin/git push origin :\"",
+  "echo \"/usr/bin/git push origin --tags\"",
+  "echo \"/usr/bin/curl -d \\\"apikey=" . MOTHERSHIP_API_KEY . "\\\" " . MOTHERSHIP_URL . "/versions/deploy/" . MOTHERSHIP_PROJECT_ID . "/" . $my_version . '"'
+];
+
+foreach($commands as $command) { echo "\n$command\n"; system($command); sleep(1); }
+
+echo "\n\n";
+
