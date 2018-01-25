@@ -36,7 +36,7 @@ $commands = array(
   './script/rmlb',
   './script/cleartrailingwhitespace',
   './script/rmtabs',
-  "/usr/bin/git commit -am 'Bumping {$my_branch} to version {$my_version}'",
+  "/usr/bin/git commit -am 'Bump {$my_branch} to version {$my_version}'",
   "/usr/bin/git push origin {$my_branch}",
   "/usr/bin/git tag {$my_version}",
   "/usr/bin/git push origin {$my_version}",

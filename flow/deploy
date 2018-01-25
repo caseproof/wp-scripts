@@ -35,7 +35,7 @@ $commands = [
   './script/rmlb',
   './script/cleartrailingwhitespace',
   './script/rmtabs',
-  "/usr/bin/git commit -am 'Deploying version {$my_version}'",
+  "/usr/bin/git commit -am 'Deploy version {$my_version}'",
   "echo 'Run the following commands now:'",
   "echo \"/usr/bin/git flow release finish '{$my_version}'\"",
   "echo \"/usr/bin/git push origin :\"",
