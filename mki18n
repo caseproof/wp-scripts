@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
 
@@ -7,9 +7,9 @@ if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-c
 include_once('./script/wp-script-config.php');
 
 $commands = array();
-$commands[] = 'find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
-$commands[] = 'find . -regex "^\.\/app.*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
-$commands[] = '/usr/bin/php ./script/i18n/makepot.php wp-plugin . ./i18n/' . WP_SCRIPT_TEXTDOMAIN . '.pot';
+$commands[] = 'find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
+$commands[] = 'find . -regex "^\.\/app.*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
+$commands[] = '/usr/bin/env wp i18n make-pot . ./i18n/' . WP_SCRIPT_TEXTDOMAIN . '.pot';
 
 foreach($commands as $command) { echo "\n\n$command\n"; system($command); sleep(1); }
 

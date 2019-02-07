@@ -60,9 +60,9 @@ And
 
 ```
 ./script/mki18n
-find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
-find . -regex "^\.\/app.*\.php" -exec /usr/bin/php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
-/usr/bin/php ./script/i18n/makepot.php wp-plugin . ./i18n/memberpress.pot
+find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
+find . -regex "^\.\/app.*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i 'memberpress' {} \;
+/usr/bin/env php ./script/i18n/makepot.php wp-plugin . ./i18n/memberpress.pot
 ```
 And (if you have a mothership project associated with this git repo)
 

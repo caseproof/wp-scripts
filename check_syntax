@@ -1,1 +1,1 @@
-find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name \*.php -exec /usr/bin/php -l "{}" \;
+find . -name \"./vendor\" -prune -o -name \"./script\" -prune -o -name \*.php -exec /usr/bin/env php -l "{}" \;

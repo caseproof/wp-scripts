@@ -4,12 +4,12 @@ shell=$(dirname $(readlink -f $0))"/wpshell.php"
 
 if [ -t 0 ]; then
 	while [ true ]; do
-		/usr/bin/php $shell
+		/usr/bin/env php $shell
 		if [ $? -eq 0 ]; then break; fi
 	done
 else
 	set -f
 	read -s input
-	echo $input | /usr/bin/php $shell stdin
+	echo $input | /usr/bin/env php $shell stdin
 fi
 
