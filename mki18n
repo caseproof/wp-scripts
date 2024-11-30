@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
+$my_dir = (isset($argv[1]) && !empty($argv[1])) ? $argv[1] : 'i18n';
+
 if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
 
 if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
@@ -9,7 +11,7 @@ include_once('./script/wp-script-config.php');
 $commands = array();
 $commands[] = 'find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
 $commands[] = 'find . -regex "^\.\/app.*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
-$commands[] = '/usr/bin/env wp i18n make-pot . ./i18n/' . WP_SCRIPT_TEXTDOMAIN . '.pot';
+$commands[] = '/usr/bin/env wp i18n make-pot . ./' . $my_dir  . '/' . WP_SCRIPT_TEXTDOMAIN . '.pot';
 
 foreach($commands as $command) { echo "\n\n$command\n"; system($command); sleep(1); }
 
