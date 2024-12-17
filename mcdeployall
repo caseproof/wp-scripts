@@ -1,0 +1,101 @@
+#!/usr/bin/env php
+<?php
+
+if (!defined('STDIN')) {
+    echo "You're unauthorized to view this page.\n";
+    exit(1);
+}
+
+if (!isset($argv[1])) {
+    echo "Usage: ./script/mcdeployall [version-number]\n";
+    exit(1);
+}
+
+$version = $argv[1];
+
+if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $version)) {
+    echo "Improper version format.\n";
+    exit(1);
+}
+
+$membercore_plugin_dir  = dirname(__DIR__);
+$membercore_plugin_slug = basename($membercore_plugin_dir);
+$plugins_dir            = dirname($membercore_plugin_dir);
+
+if (getcwd() !== $membercore_plugin_dir) {
+    echo "This script must be run from within the plugin root directory.\n";
+    exit(1);
+}
+
+if (strpos($membercore_plugin_slug, 'membercore') !== 0) {
+    echo "This script must be run from within a MemberCore plugin directory.\n";
+    exit(1);
+}
+
+$plugins = [
+    $membercore_plugin_slug,
+    str_replace('membercore', 'memberpress', $membercore_plugin_slug),
+    str_replace('membercore', 'wishlistmember', $membercore_plugin_slug),
+];
+
+$project_ids = [];
+
+foreach($plugins as $plugin) {
+    $plugin_path = $plugins_dir . '/' . $plugin;
+
+    if (!file_exists($plugin_path)) {
+        echo "The $plugin plugin was not found.\n";
+        exit(1);
+    }
+
+    if (!is_dir($plugin_path . '/script')) {
+        echo "The $plugin plugin does not have a script directory.\n";
+        exit(1);
+    }
+
+    if (!file_exists($plugin_path . '/script/wp-script-config.php')) {
+        echo "The $plugin plugin does not have a script/wp-script-config.php file.\n";
+        exit(1);
+    }
+
+    $config = file_get_contents($plugin_path . '/script/wp-script-config.php');
+
+    if (!preg_match('/define\(\'WP_SCRIPT_TEXTDOMAIN\',\s*\'([^\']+)\'\)/', $config, $matches)) {
+        echo "The $plugin plugin does not have a WP_SCRIPT_TEXTDOMAIN defined.\n";
+        exit(1);
+    }
+
+    if (!preg_match('/define\(\'MOTHERSHIP_URL\',\s*\'([^\']+)\'\)/', $config, $matches)) {
+        echo "The $plugin plugin does not have a MOTHERSHIP_URL defined.\n";
+        exit(1);
+    }
+
+    if (!preg_match('/define\(\'MOTHERSHIP_API_KEY\',\s*\'([^\']+)\'\)/', $config, $matches)) {
+        echo "The $plugin plugin does not have a MOTHERSHIP_API_KEY defined.\n";
+        exit(1);
+    }
+
+    if (!preg_match('/define\(\'MOTHERSHIP_PROJECT_ID\',\s*\'([^\']+)\'\)/', $config, $matches)) {
+        echo "The $plugin plugin does not have a MOTHERSHIP_PROJECT_ID defined.\n";
+        exit(1);
+    } elseif (empty($matches[1]) || !is_numeric($matches[1])) {
+        echo "The $plugin plugin does not have a valid MOTHERSHIP_PROJECT_ID defined.\n";
+        exit(1);
+    }
+
+    if (in_array($matches[1], $project_ids, true)) {
+        echo "The $plugin plugin has a duplicate MOTHERSHIP_PROJECT_ID defined.\n";
+        exit(1);
+    }
+
+    $project_ids[] = $matches[1];
+}
+
+foreach ($plugins as $plugin) {
+    chdir($plugins_dir . '/' . $plugin);
+    $command = "./script/mcdevdeploy $version";
+    echo "\n$command\n";
+    system($command);
+}
+
+exit(0);
