@@ -1,0 +1,75 @@
+#!/usr/bin/env php
+<?php
+
+if (!defined('STDIN')) {
+    echo "You're unauthorized to view this page.\n";
+    exit(1);
+}
+
+if (!isset($argv[1])) {
+    echo "Usage: ./script/mcdevdeploy [version-number]\n";
+    exit(1);
+}
+
+$version = $argv[1];
+
+if (!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $version)) {
+    echo "Improper version format.\n";
+    exit(1);
+}
+
+if (getcwd() !== dirname(__DIR__)) {
+    echo "This script must be run from within the plugin root directory.\n";
+    exit(1);
+}
+
+if (!file_exists(__DIR__ . '/wp-script-config.php')) {
+    echo "The script/wp-script-config.php file wasn't found.\n";
+    exit(1);
+}
+
+require __DIR__ . '/wp-script-config.php';
+
+if (empty(MOTHERSHIP_URL) || empty(MOTHERSHIP_API_KEY) || empty(MOTHERSHIP_PROJECT_ID)) {
+    echo "The MOTHERSHIP_URL, MOTHERSHIP_API_KEY, and MOTHERSHIP_PROJECT_ID constants must be defined in script/wp-script-config.php\n";
+    exit(1);
+}
+
+echo "!! Deploying version \"{$version}\"\n";
+
+if (!defined('MY_PLUGIN_MAIN_FILE')) {
+    define('MY_PLUGIN_MAIN_FILE', WP_SCRIPT_TEXTDOMAIN . '.php');
+}
+
+echo "!! Merging develop into master and issuing release\n";
+
+$commands   = array();
+$commands[] = "/usr/bin/git checkout develop";
+$commands[] = "/usr/bin/git pull origin develop";
+$commands[] = "/usr/bin/git checkout master";
+$commands[] = "/usr/bin/git pull origin master";
+$commands[] = "/usr/bin/git merge develop";
+$commands[] = "/usr/bin/git push origin master";
+$commands[] = "/usr/bin/perl -p -i -e 's/^Version: (.*)$/Version: {$version}/' ./" . MY_PLUGIN_MAIN_FILE;
+$commands[] = './script/mki18n';
+$commands[] = './script/rmlb';
+$commands[] = './script/cleartrailingwhitespace';
+$commands[] = './script/rmtabs';
+$commands[] = "/usr/bin/git commit -am 'Bump master to version {$version} [ci skip]'";
+$commands[] = "/usr/bin/git push origin master";
+$commands[] = "/usr/bin/git tag {$version}";
+$commands[] = "/usr/bin/git push origin {$version}";
+$commands[] = '/usr/bin/curl -d "apikey=' . MOTHERSHIP_API_KEY . '" ' . MOTHERSHIP_URL . '/versions/deploy/' . MOTHERSHIP_PROJECT_ID . '/' . $version;
+$commands[] = "/usr/bin/git checkout develop";
+$commands[] = "/usr/bin/git merge master";
+$commands[] = "/usr/bin/git push origin develop";
+
+foreach ($commands as $command) {
+    echo "\n$command\n";
+    system($command);
+    sleep(1);
+}
+
+echo "!! Merged master back into develop and pushed to \"origin develop\"\n";
+
+exit(0);
