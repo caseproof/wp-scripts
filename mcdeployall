@@ -48,6 +48,16 @@ foreach($plugins as $plugin) {
         exit(1);
     }
 
+    exec('git -C ' . escapeshellarg($plugin_path) . ' status --porcelain', $changes, $result);
+
+    if ($result !== 0) {
+        echo "Failed to execute git status for the $plugin plugin.\n";
+        exit(1);
+    } elseif (count($changes)) {
+        echo "The $plugin plugin has uncommitted changes.\n";
+        exit(1);
+    }
+
     if (!is_dir($plugin_path . '/script')) {
         echo "The $plugin plugin does not have a script directory.\n";
         exit(1);
