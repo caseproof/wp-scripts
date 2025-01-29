@@ -35,7 +35,7 @@ if (strpos($membercore_plugin_slug, 'membercore') !== 0) {
 $plugins = [
     $membercore_plugin_slug,
     str_replace('membercore', 'memberpress', $membercore_plugin_slug),
-    str_replace('membercore', 'wishlistmember', $membercore_plugin_slug),
+    str_replace('membercore', 'wishlistlms', $membercore_plugin_slug),
 ];
 
 $project_ids = [];
