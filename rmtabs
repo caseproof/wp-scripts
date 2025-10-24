@@ -1,7 +1,6 @@
-echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(vendor|script|test).*" -prune -o -name \"*.php\"`"
-/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(vendor|script|test).*" -prune -o -name "*.php"`
-echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(vendor|script|test).*" -prune -o -name \"*.css\"`"
-/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(vendor|script|test).*" -prune -o -name "*.css"`
-echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(vendor|script|test).*" -prune -o -name \"*.js\"`"
-/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(vendor|script|test).*" -prune -o -name "*.js"`
-
+echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex \"\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*\" -prune -o -name \"*.php\" -print`"
+/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*" -prune -o -name "*.php" -print`
+echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex \"\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*\" -prune -o -name \"*.css\" -print`"
+/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*" -prune -o -name "*.css" -print`
+echo "/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex \"\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*\" -prune -o -name \"*.js\" -print`"
+/usr/bin/perl -p -i -e 's/\t/  /g' `find . -regextype posix-extended -iregex "\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*" -prune -o -name "*.js" -print`
