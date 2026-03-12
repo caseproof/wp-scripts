@@ -32,11 +32,23 @@ if (strpos($membercore_plugin_slug, 'membercore') !== 0) {
     exit(1);
 }
 
-$plugins = [
-    $membercore_plugin_slug,
-    str_replace('membercore', 'memberpress', $membercore_plugin_slug),
-    str_replace('membercore', 'wishlistlms', $membercore_plugin_slug),
-];
+// Fetch the dependent plugin slugs from the MEMBERCORE_DEPS repo variable.
+$gh_output = shell_exec('gh api repos/caseproof/' . escapeshellarg($membercore_plugin_slug) . '/actions/variables/MEMBERCORE_DEPS --jq .value 2>&1');
+
+if ($gh_output === null || trim($gh_output) === '') {
+    echo "Failed to fetch MEMBERCORE_DEPS variable from the $membercore_plugin_slug repo.\n";
+    echo "Make sure you are authenticated with the GitHub CLI (gh auth login).\n";
+    exit(1);
+}
+
+$deps = json_decode(trim($gh_output), true);
+
+if (!is_array($deps) || empty($deps)) {
+    echo "Failed to parse MEMBERCORE_DEPS variable. Expected a JSON array, got: $gh_output\n";
+    exit(1);
+}
+
+$plugins = array_merge([$membercore_plugin_slug], $deps);
 
 $project_ids = [];
 
