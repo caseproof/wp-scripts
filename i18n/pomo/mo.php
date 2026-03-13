@@ -13,8 +13,6 @@ require_once dirname(__FILE__) . '/streams.php';
 if ( ! class_exists( 'MO', false ) ):
 class MO extends Gettext_Translations {
 
-	var $_nplurals = 2;
-
 	/**
 	 * Fills up with the entries from MO file $filename
 	 *
