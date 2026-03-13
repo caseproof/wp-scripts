@@ -1,6 +1,6 @@
-echo "/usr/bin/perl -p -i -e 's/\r//g' `find . -regextype posix-extended -iregex \"\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*\" -prune -o -name \"*.php\" -print`"
-/usr/bin/perl -p -i -e 's/\r//g' `find . -regextype posix-extended -iregex "\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*" -prune -o -name "*.php" -print`
-echo "/usr/bin/perl -p -i -e 's/\r//g' `find . -regextype posix-extended -iregex \"\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*\" -prune -o -name \"*.css\" -print`"
-/usr/bin/perl -p -i -e 's/\r//g' `find . -regextype posix-extended -iregex "\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*" -prune -o -name "*.css" -print`
-echo "/usr/bin/perl -p -i -e 's/\r//g' `find . -regextype posix-extended -iregex \"\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*\" -prune -o -name \"*.js\" -print`"
-/usr/bin/perl -p -i -e 's/\r//g' `find . -regextype posix-extended -iregex "\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*" -prune -o -name "*.js" -print`
+#!/bin/bash
+find . -regextype posix-extended \
+  -iregex '\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*' -prune -o \
+  -type f \( -name '*.php' -o -name '*.css' -o -name '*.js' \) \
+  -print \
+  -exec /usr/bin/perl -p -i -e 's/\r//g' {} +
