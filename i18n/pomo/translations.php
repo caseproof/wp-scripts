@@ -163,6 +163,8 @@ class Translations {
 }
 
 class Gettext_Translations extends Translations {
+	var $_nplurals = 2;
+	var $_gettext_select_plural_form = null;
 	/**
 	 * The gettext implementation of select_plural_form.
 	 *

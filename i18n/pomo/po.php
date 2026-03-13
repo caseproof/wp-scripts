@@ -13,8 +13,6 @@ if ( ! defined( 'PO_MAX_LINE_LEN' ) ) {
 	define('PO_MAX_LINE_LEN', 79);
 }
 
-ini_set('auto_detect_line_endings', 1);
-
 /**
  * Routines for working with PO files
  */
@@ -112,7 +110,7 @@ class PO extends Gettext_Translations {
 
 		$string = str_replace(array_keys($replaces), array_values($replaces), $string);
 
-		$po = $quote.implode("${slash}n$quote$newline$quote", explode($newline, $string)).$quote;
+		$po = $quote.implode("{$slash}n$quote$newline$quote", explode($newline, $string)).$quote;
 		// add empty string on first line for readbility
 		if (false !== strpos($string, $newline) &&
 				(substr_count($string, $newline) > 1 || !($newline === substr($string, -strlen($newline))))) {

@@ -13,6 +13,8 @@ class POMO_Reader {
 
 	var $endian = 'little';
 	var $_post = '';
+	var $is_overloaded = false;
+	var $_pos = 0;
 
 	/**
 	 * PHP5 constructor.
@@ -136,6 +138,8 @@ endif;
 
 if ( ! class_exists( 'POMO_FileReader', false ) ):
 class POMO_FileReader extends POMO_Reader {
+
+	var $_f;
 
 	/**
 	 * @param string $filename
