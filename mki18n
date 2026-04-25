@@ -1,19 +1,81 @@
 #!/usr/bin/env php
 <?php
-$my_dir = (isset($argv[1]) && !empty($argv[1])) ? $argv[1] : 'i18n';
-
 if(!defined('STDIN')) { die("You're unauthorized to view this page."); }
 
 if(!file_exists('./script/wp-script-config.php')) { die("Your script/wp-script-config.php file wasn't found."); }
 
 include_once('./script/wp-script-config.php');
 
-$commands = array();
-$commands[] = 'find . -regex "^\.\/[^/]*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
-$commands[] = 'find . -regex "^\.\/app.*\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . WP_SCRIPT_TEXTDOMAIN . '\' {} \;';
-$commands[] = '/usr/bin/env wp i18n make-pot . ./' . $my_dir  . '/' . WP_SCRIPT_TEXTDOMAIN . '.pot';
+/**
+ * Run a single make-pot pass for a given textdomain.
+ *
+ * @param string $domain      Textdomain to filter by.
+ * @param string $pot_dir     Directory the .pot is written to (relative to plugin root).
+ * @param string $exclude     Comma-separated --exclude value (empty to skip flag).
+ * @param string $include     Comma-separated --include value (empty to skip flag).
+ * @param bool   $auto_tag    Whether to run add-textdomain.php first. Skipped automatically
+ *                            when a secondary domain is configured (ambiguous attribution).
+ */
+function wp_script_run_make_pot($domain, $pot_dir, $exclude, $include, $auto_tag) {
+	if (empty($domain)) {
+		echo "\n[skip] empty textdomain — pass not run\n";
+		return;
+	}
+	if ($auto_tag) {
+		$cmds = array(
+			'find . -regex "^\\./[^/]*\\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . $domain . '\' {} \\;',
+			'find . -regex "^\\./app.*\\.php" -exec /usr/bin/env php ./script/i18n/add-textdomain.php -i \'' . $domain . '\' {} \\;',
+		);
+		foreach ($cmds as $c) { echo "\n\n$c\n"; system($c); sleep(1); }
+	}
 
-foreach($commands as $command) { echo "\n\n$command\n"; system($command); sleep(1); }
+	$pot_path = './' . trim($pot_dir, '/') . '/' . $domain . '.pot';
+
+	$flags = ' --slug=' . escapeshellarg($domain) . ' --domain=' . escapeshellarg($domain);
+	if (!empty($exclude)) { $flags .= ' --exclude=' . escapeshellarg($exclude); }
+	if (!empty($include)) { $flags .= ' --include=' . escapeshellarg($include); }
+
+	$cmd = '/usr/bin/env wp i18n make-pot . ' . escapeshellarg($pot_path) . $flags;
+	echo "\n\n$cmd\n";
+	system($cmd);
+}
+
+// CLI override for the primary languages dir keeps the old `./mki18n my-dir` behavior.
+$cli_dir = (isset($argv[1]) && !empty($argv[1])) ? $argv[1] : null;
+
+$primary_dir = $cli_dir
+	? $cli_dir
+	: (defined('WP_SCRIPT_LANGUAGES_DIR') && WP_SCRIPT_LANGUAGES_DIR ? WP_SCRIPT_LANGUAGES_DIR : 'i18n');
+
+$primary_exclude = defined('WP_SCRIPT_EXCLUDE') ? WP_SCRIPT_EXCLUDE : '';
+$primary_include = defined('WP_SCRIPT_INCLUDE') ? WP_SCRIPT_INCLUDE : '';
+
+$has_secondary = defined('WP_SCRIPT_TEXTDOMAIN_2') && !empty(WP_SCRIPT_TEXTDOMAIN_2);
+
+// Auto-tagging is only safe for single-domain projects. With two domains
+// configured we cannot infer which one an untagged call should get.
+$auto_tag = !$has_secondary;
+
+wp_script_run_make_pot(
+	WP_SCRIPT_TEXTDOMAIN,
+	$primary_dir,
+	$primary_exclude,
+	$primary_include,
+	$auto_tag
+);
+
+if ($has_secondary) {
+	$secondary_dir = defined('WP_SCRIPT_LANGUAGES_DIR_2') && WP_SCRIPT_LANGUAGES_DIR_2 ? WP_SCRIPT_LANGUAGES_DIR_2 : 'i18n';
+	$secondary_exclude = defined('WP_SCRIPT_EXCLUDE_2') ? WP_SCRIPT_EXCLUDE_2 : '';
+	$secondary_include = defined('WP_SCRIPT_INCLUDE_2') ? WP_SCRIPT_INCLUDE_2 : '';
+
+	wp_script_run_make_pot(
+		WP_SCRIPT_TEXTDOMAIN_2,
+		$secondary_dir,
+		$secondary_exclude,
+		$secondary_include,
+		false
+	);
+}
 
 echo "\n\n";
-
