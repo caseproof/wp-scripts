@@ -13,7 +13,9 @@ if (!isset($argv[1])) {
 
 $version = $argv[1];
 
-if(!preg_match('/\d+\.\d+\.\d+(([a-z_-]+)\d+)?/i', $version)) {
+// Accepts X.Y.Z, the legacy MemberPress prerelease convention (1.2.3rc1) and
+// semver prereleases (1.2.3-rc.1).
+if(!preg_match('/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+|([a-z_][a-z_-]*)\d+)?$/iD', $version)) {
     echo "Improper version format.\n";
     exit(1);
 }
