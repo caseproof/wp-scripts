@@ -15,7 +15,13 @@ define('WP_SCRIPT_TEXTDOMAIN','');
 // Comma-separated paths to exclude from the primary scan.
 // Mirrors `wp i18n make-pot --exclude=...`.
 // Default (when undefined): nothing extra is excluded.
-// define('WP_SCRIPT_EXCLUDE', 'pro,vendor,vendor-prefixed,node_modules,assets,tests,docs,bin');
+//
+// Do NOT exclude vendor-prefixed: Strauss-bundled in-house libraries
+// (ground-level-*, etc.) carry user-facing strings tagged with the plugin's
+// own textdomain, so excluding it silently drops them from the .pot. Prefer
+// excluding built JS output (assets/js/build) over all of assets/, or you'll
+// lose translatable JS strings (make-pot extracts JS too).
+// define('WP_SCRIPT_EXCLUDE', 'pro,vendor,node_modules,assets/js/build,tests,docs,bin');
 
 // Comma-separated paths to restrict the primary scan to.
 // Mirrors `wp i18n make-pot --include=...`. Usually unnecessary for a

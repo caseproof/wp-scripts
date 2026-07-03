@@ -76,13 +76,20 @@ same repo, define the optional `_2` constants in `wp-script-config.php`:
 ```
 define('WP_SCRIPT_TEXTDOMAIN', 'my-plugin');
 define('WP_SCRIPT_LANGUAGES_DIR', 'languages');
-define('WP_SCRIPT_EXCLUDE', 'pro,vendor,vendor-prefixed,node_modules,assets,tests,docs,bin');
+define('WP_SCRIPT_EXCLUDE', 'pro,vendor,node_modules,assets/js/build,tests,docs,bin');
 
 define('WP_SCRIPT_TEXTDOMAIN_2', 'my-plugin-pro');
 define('WP_SCRIPT_LANGUAGES_DIR_2', 'pro/languages');
 define('WP_SCRIPT_INCLUDE_2', 'pro');
-define('WP_SCRIPT_EXCLUDE_2', 'pro/vendor,pro/vendor-prefixed,pro/node_modules,pro/assets');
+define('WP_SCRIPT_EXCLUDE_2', 'pro/vendor,pro/node_modules,pro/assets/js/build');
 ```
+
+> **Don't exclude `vendor-prefixed`.** Plugins that use Strauss to bundle
+> in-house libraries (`ground-level-*`, etc.) ship real user-facing strings in
+> that tree, tagged with the plugin's own textdomain — excluding it silently
+> drops them from the `.pot`. For the same reason, exclude built JS output
+> (`assets/js/build`) rather than the whole `assets/` directory, since
+> `wp i18n make-pot` also extracts translatable strings from JS.
 
 `mki18n` will then run two passes — `./languages/my-plugin.pot` and
 `./pro/languages/my-plugin-pro.pot` — each scoped to its own subtree and
