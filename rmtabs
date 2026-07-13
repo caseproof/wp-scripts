@@ -1,6 +1,42 @@
 #!/bin/bash
+# Normalize indentation tabs -> 2 spaces in distributed source.
+#
+# By default this covers .php, .css, and .js (unchanged behavior). A project
+# can exclude one or more extensions by defining WP_SCRIPT_RMTABS_EXCLUDE_EXTS
+# (comma-separated) in script/wp-script-config.php, e.g.:
+#
+#   define('WP_SCRIPT_RMTABS_EXCLUDE_EXTS', 'js');
+#
+# Use this when a project's JS/CSS indentation is owned by Prettier/ESLint and
+# follows the WordPress tabs standard (e.g. Pretty Links) — tab stripping here
+# would fight the linter and break its CI gate. When the constant is
+# missing/empty (or the config file is absent), every extension is processed,
+# so existing projects are unaffected.
+
+exclude=""
+if [ -f ./script/wp-script-config.php ] && command -v php >/dev/null 2>&1; then
+  exclude=$(php -r "include './script/wp-script-config.php'; echo (defined('WP_SCRIPT_RMTABS_EXCLUDE_EXTS') ? WP_SCRIPT_RMTABS_EXCLUDE_EXTS : '');" 2>/dev/null)
+fi
+
+# Build the -name predicate from the default extension set minus any excluded.
+name_args=()
+for ext in php css js; do
+  skip=0
+  for x in $(echo "$exclude" | tr ',' ' '); do
+    x=$(echo "$x" | tr 'A-Z' 'a-z' | sed 's/^\.//')
+    [ "$x" = "$ext" ] && skip=1
+  done
+  if [ "$skip" -eq 0 ]; then
+    [ ${#name_args[@]} -gt 0 ] && name_args+=( -o )
+    name_args+=( -name "*.$ext" )
+  fi
+done
+
+# Every extension excluded -> nothing to do.
+[ ${#name_args[@]} -eq 0 ] && exit 0
+
 find . -regextype posix-extended \
   -iregex '\./(brand/add-ons|script|test|tmp).*|.*/(node_modules|vendor).*' -prune -o \
-  -type f \( -name '*.php' -o -name '*.css' -o -name '*.js' \) \
+  -type f \( "${name_args[@]}" \) \
   -print \
   -exec /usr/bin/perl -p -i -e 's/\t/  /g' {} +

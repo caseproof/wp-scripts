@@ -43,6 +43,15 @@ define('WP_SCRIPT_TEXTDOMAIN','');
 // define('WP_SCRIPT_EXCLUDE_2', '');
 // define('WP_SCRIPT_INCLUDE_2', '');
 
+// ===== Optional: whitespace normalization (rmtabs) =====
+// The deploy runs `rmtabs`, which converts indentation tabs -> 2 spaces in
+// distributed source (.php, .css, .js by default). If a project's JS (or CSS)
+// indentation is owned by Prettier/ESLint and follows the WordPress *tabs*
+// standard, list those extensions here so rmtabs leaves them alone — otherwise
+// it fights the linter and breaks the lint-js CI gate. Comma-separated, bare
+// extensions. Undefined/empty (the default) processes all extensions.
+// define('WP_SCRIPT_RMTABS_EXCLUDE_EXTS', 'js');
+
 // ===== Mothership / deploy =====
 define('MY_PLUGIN_MAIN_FILE', 'main.php');
 define('MOTHERSHIP_URL','');
