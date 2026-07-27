@@ -100,6 +100,45 @@ The auto-tag step (`add-textdomain.php`) is skipped when a secondary domain
 is configured, since an untagged call can't be unambiguously assigned to
 either domain. Two-domain projects must tag every gettext call explicitly.
 
+### JavaScript translation references (`WP_SCRIPT_JS_BUNDLE_MAP`)
+
+**The problem this solves.** A React/`@wordpress/i18n` plugin won't translate
+its JS UI unless you do this, and it fails silently. WordPress locates a
+script's JS translation JSON by hashing the **enqueued (built) script path**
+(e.g. `assets/js/build/shared.js`) — the file is `<domain>-<locale>-<md5>.json`
+where `<md5>` is `md5` of that path. But `wp i18n make-pot` scans **source**, so
+the `#:` references it writes are `src-js/...` — and `src-js` is stripped from
+the distributed plugin. Every translation tool derives its JSON filename from
+those references, so with `src-js` references:
+
+- **Loco Translate generates no JSON at all** — its compiler skips any
+  reference whose file isn't present in the shipped bundle.
+- **`wp i18n make-json` / WordPress.org** name files after the `src-js` hash,
+  which no runtime lookup will ever match.
+
+Either way PHP strings translate and the React UI stays English. You **cannot**
+fix this by scanning the built dir instead (`--exclude` the source, extract from
+`assets/js/build`): the minified bundles OOM the JS parser and lose translator
+comments.
+
+**The fix.** Keep scanning source, then rewrite the JS references to the built
+bundle they ship in. `mki18n` does this automatically after `make-pot` when you
+point it at a webpack-emitted `source -> built bundle` manifest:
+
+```
+define('WP_SCRIPT_JS_BUNDLE_MAP', 'languages/i18n-bundle-map.json');
+// and, for a second (Pro) domain:
+define('WP_SCRIPT_JS_BUNDLE_MAP_2', 'pro/languages/i18n-bundle-map.json');
+```
+
+The manifest is `{ "src-js/Foo.jsx": ["assets/js/build/bundle.js"] }` — values
+are arrays because a shared module can inline into several bundles, and each
+gets a reference. Only webpack knows this mapping (entry names get renamed,
+shared code fans out), so it must be emitted by the build, not guessed from
+paths. A missing manifest is a no-op, so it's safe to set the constant before
+the build starts emitting one. See `i18n/remap-js-refs.php` for the rewrite and
+`WP_SCRIPT_JS_BUNDLE_MAP` in `wp-script-config.sample.php`.
+
 And (if you have a mothership project associated with this git repo)
 
 ```
