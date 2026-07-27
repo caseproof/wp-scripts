@@ -28,6 +28,22 @@ define('WP_SCRIPT_TEXTDOMAIN','');
 // single-domain plugin; leave undefined to scan everything not excluded.
 // define('WP_SCRIPT_INCLUDE', '');
 
+// Path (relative to plugin root) to a webpack-emitted source->built-bundle
+// JSON manifest. When set, mki18n rewrites the JS references in the generated
+// .pot from `src-js/...` sources to the built bundle(s) they ship in. This is
+// what makes JavaScript translations work regardless of tooling: WordPress
+// finds a script's JSON by hashing the ENQUEUED (built) path, and Loco /
+// `wp i18n make-json` / WordPress.org all name their JSON from the .pot's
+// references — so those references must be the built paths, not the stripped
+// `src-js/...` sources. Scanning stays on the source (the minified build OOMs
+// the JS parser and loses translator comments); only references are rewritten.
+// Manifest shape (values are arrays — a shared module can inline into several
+// bundles):
+//   { "src-js/shared/Header.js": ["assets/js/build/shared.js"] }
+// A missing manifest is a no-op, so it's safe to set this before the build
+// starts emitting one. See i18n/remap-js-refs.php.
+// define('WP_SCRIPT_JS_BUNDLE_MAP', 'languages/i18n-bundle-map.json');
+
 // ===== Optional: secondary textdomain (e.g. Pro add-on bundled in same repo) =====
 // Define WP_SCRIPT_TEXTDOMAIN_2 to a non-empty string to make mki18n run a
 // second pass with this domain. Each `_2` constant mirrors its primary
@@ -42,6 +58,7 @@ define('WP_SCRIPT_TEXTDOMAIN','');
 // define('WP_SCRIPT_LANGUAGES_DIR_2', '');
 // define('WP_SCRIPT_EXCLUDE_2', '');
 // define('WP_SCRIPT_INCLUDE_2', '');
+// define('WP_SCRIPT_JS_BUNDLE_MAP_2', 'pro/languages/i18n-bundle-map.json');
 
 // ===== Optional: whitespace normalization (rmtabs) =====
 // The deploy runs `rmtabs`, which converts indentation tabs -> 2 spaces in

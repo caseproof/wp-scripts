@@ -15,8 +15,13 @@ include_once('./script/wp-script-config.php');
  * @param string $include     Comma-separated --include value (empty to skip flag).
  * @param bool   $auto_tag    Whether to run add-textdomain.php first. Skipped automatically
  *                            when a secondary domain is configured (ambiguous attribution).
+ * @param string $bundle_map  Path (relative to plugin root) to a webpack-emitted
+ *                            source->built-bundle JSON manifest. When set and present, JS
+ *                            references in the generated .pot are rewritten to the built
+ *                            bundle paths, so Loco/make-json/WordPress.org name their JSON
+ *                            files the way WordPress actually looks them up. Empty to skip.
  */
-function wp_script_run_make_pot($domain, $pot_dir, $exclude, $include, $auto_tag) {
+function wp_script_run_make_pot($domain, $pot_dir, $exclude, $include, $auto_tag, $bundle_map = '') {
 	if (empty($domain)) {
 		echo "\n[skip] empty textdomain — pass not run\n";
 		return;
@@ -37,7 +42,28 @@ function wp_script_run_make_pot($domain, $pot_dir, $exclude, $include, $auto_tag
 
 	$cmd = '/usr/bin/env wp i18n make-pot . ' . escapeshellarg($pot_path) . $flags;
 	echo "\n\n$cmd\n";
-	system($cmd);
+	$make_pot_status = 1;
+	system($cmd, $make_pot_status);
+
+	// Rewrite JS references from `src-js/...` sources to the built bundles they
+	// ship in, so translation tools name their JSON files the way WordPress
+	// looks them up. Driven by a webpack-emitted manifest; a missing manifest
+	// is a no-op (see i18n/remap-js-refs.php). Skip entirely if make-pot failed
+	// — we must not rewrite references in a stale/partial .pot.
+	if (!empty($bundle_map)) {
+		if ($make_pot_status !== 0) {
+			echo "\n[i18n] make-pot exited with status {$make_pot_status} — skipping JS reference remap\n";
+		} else {
+			$map_path = './' . ltrim($bundle_map, './');
+			if (file_exists($map_path)) {
+				$remap = '/usr/bin/env php ./script/i18n/remap-js-refs.php ' . escapeshellarg($pot_path) . ' ' . escapeshellarg($map_path);
+				echo "\n\n$remap\n";
+				system($remap);
+			} else {
+				echo "\n[i18n] bundle map '{$bundle_map}' not found — skipping JS reference remap\n";
+			}
+		}
+	}
 }
 
 // CLI override for the primary languages dir keeps the old `./mki18n my-dir` behavior.
@@ -49,6 +75,7 @@ $primary_dir = $cli_dir
 
 $primary_exclude = defined('WP_SCRIPT_EXCLUDE') ? WP_SCRIPT_EXCLUDE : '';
 $primary_include = defined('WP_SCRIPT_INCLUDE') ? WP_SCRIPT_INCLUDE : '';
+$primary_map     = defined('WP_SCRIPT_JS_BUNDLE_MAP') ? WP_SCRIPT_JS_BUNDLE_MAP : '';
 
 $has_secondary = defined('WP_SCRIPT_TEXTDOMAIN_2') && !empty(WP_SCRIPT_TEXTDOMAIN_2);
 
@@ -61,20 +88,23 @@ wp_script_run_make_pot(
 	$primary_dir,
 	$primary_exclude,
 	$primary_include,
-	$auto_tag
+	$auto_tag,
+	$primary_map
 );
 
 if ($has_secondary) {
 	$secondary_dir = defined('WP_SCRIPT_LANGUAGES_DIR_2') && WP_SCRIPT_LANGUAGES_DIR_2 ? WP_SCRIPT_LANGUAGES_DIR_2 : 'i18n';
 	$secondary_exclude = defined('WP_SCRIPT_EXCLUDE_2') ? WP_SCRIPT_EXCLUDE_2 : '';
 	$secondary_include = defined('WP_SCRIPT_INCLUDE_2') ? WP_SCRIPT_INCLUDE_2 : '';
+	$secondary_map     = defined('WP_SCRIPT_JS_BUNDLE_MAP_2') ? WP_SCRIPT_JS_BUNDLE_MAP_2 : '';
 
 	wp_script_run_make_pot(
 		WP_SCRIPT_TEXTDOMAIN_2,
 		$secondary_dir,
 		$secondary_exclude,
 		$secondary_include,
-		false
+		false,
+		$secondary_map
 	);
 }
 
