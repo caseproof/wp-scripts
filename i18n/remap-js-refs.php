@@ -81,7 +81,10 @@ foreach ($lines as $line) {
 		foreach ($refs as $ref) {
 			// Strip a trailing `:<line-number>`; paths never contain a colon.
 			$path = preg_replace('/:\d+$/', '', $ref);
-			if (isset($map[$path]) && is_array($map[$path])) {
+			// A non-empty mapping rewrites the reference; anything else
+			// (PHP source, JS not in the manifest, or a key mapped to an
+			// empty list) is left exactly as-is so no reference is ever lost.
+			if (isset($map[$path]) && is_array($map[$path]) && !empty($map[$path])) {
 				foreach ($map[$path] as $built) {
 					$pending['#: ' . $built] = true;
 				}

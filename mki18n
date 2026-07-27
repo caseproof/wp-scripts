@@ -42,20 +42,26 @@ function wp_script_run_make_pot($domain, $pot_dir, $exclude, $include, $auto_tag
 
 	$cmd = '/usr/bin/env wp i18n make-pot . ' . escapeshellarg($pot_path) . $flags;
 	echo "\n\n$cmd\n";
-	system($cmd);
+	$make_pot_status = 1;
+	system($cmd, $make_pot_status);
 
 	// Rewrite JS references from `src-js/...` sources to the built bundles they
 	// ship in, so translation tools name their JSON files the way WordPress
 	// looks them up. Driven by a webpack-emitted manifest; a missing manifest
-	// is a no-op (see i18n/remap-js-refs.php).
+	// is a no-op (see i18n/remap-js-refs.php). Skip entirely if make-pot failed
+	// — we must not rewrite references in a stale/partial .pot.
 	if (!empty($bundle_map)) {
-		$map_path = './' . ltrim($bundle_map, './');
-		if (file_exists($map_path)) {
-			$remap = '/usr/bin/env php ./script/i18n/remap-js-refs.php ' . escapeshellarg($pot_path) . ' ' . escapeshellarg($map_path);
-			echo "\n\n$remap\n";
-			system($remap);
+		if ($make_pot_status !== 0) {
+			echo "\n[i18n] make-pot exited with status {$make_pot_status} — skipping JS reference remap\n";
 		} else {
-			echo "\n[i18n] bundle map '{$bundle_map}' not found — skipping JS reference remap\n";
+			$map_path = './' . ltrim($bundle_map, './');
+			if (file_exists($map_path)) {
+				$remap = '/usr/bin/env php ./script/i18n/remap-js-refs.php ' . escapeshellarg($pot_path) . ' ' . escapeshellarg($map_path);
+				echo "\n\n$remap\n";
+				system($remap);
+			} else {
+				echo "\n[i18n] bundle map '{$bundle_map}' not found — skipping JS reference remap\n";
+			}
 		}
 	}
 }
