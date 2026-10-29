@@ -89,6 +89,40 @@ foreach($plugins as $plugin) {
         exit(1);
     }
 
+    // Read the flag the way mcdevdeploy does, by including the config from the
+    // plugin root, so the two scripts agree on which plugins skip Mothership.
+    // Each config runs in its own process because every plugin defines the
+    // same constants. The answer is the last thing the process prints, so
+    // stray output from the config does not hide it, and a config that cannot
+    // be loaded stops the release here rather than partway through it.
+    $flag_output = shell_exec(
+        'cd ' . escapeshellarg($plugin_path) . ' && '
+        . escapeshellarg(PHP_BINARY) . ' -d display_errors=stderr -d log_errors=0 -r ' . escapeshellarg(
+            'include ' . var_export($plugin_path . '/script/wp-script-config.php', true) . ';'
+            . " echo 'WPORG_ONLY=', defined('WP_SCRIPT_WPORG_ONLY') && WP_SCRIPT_WPORG_ONLY === true ? 'yes' : 'no';"
+        )
+    );
+
+    if (!preg_match('/WPORG_ONLY=(yes|no)$/D', (string) $flag_output, $flag)) {
+        echo "The $plugin plugin's script/wp-script-config.php could not be loaded.\n";
+        exit(1);
+    }
+
+    // A plugin hosted on wordpress.org needs a Stable tag line in its readme
+    // instead of a Mothership project.
+    if ($flag[1] === 'yes') {
+        $readme = $plugin_path . '/readme.txt';
+
+        if (!is_file($readme) || !preg_match('/^Stable tag:/m', file_get_contents($readme))) {
+            echo "The $plugin plugin sets WP_SCRIPT_WPORG_ONLY but has no readme.txt with a Stable tag line.\n";
+            exit(1);
+        }
+
+        echo "The $plugin plugin sets WP_SCRIPT_WPORG_ONLY: no Mothership deploy and no [ci skip] on its bump commit.\n";
+
+        continue;
+    }
+
     if (!preg_match('/define\(\'MOTHERSHIP_URL\',\s*\'([^\']+)\'\)/', $config, $matches)) {
         echo "The $plugin plugin does not have a MOTHERSHIP_URL defined.\n";
         exit(1);

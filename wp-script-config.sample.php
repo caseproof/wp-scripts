@@ -69,6 +69,20 @@ define('WP_SCRIPT_TEXTDOMAIN','');
 // extensions. Undefined/empty (the default) processes all extensions.
 // define('WP_SCRIPT_RMTABS_EXCLUDE_EXTS', 'js');
 
+// ===== Optional: wordpress.org release (mcdeployall / mcdevdeploy) =====
+// For a plugin hosted on wordpress.org and deployed by a workflow that runs
+// when a version tag is pushed. When true, mcdeployall and mcdevdeploy:
+//   - skip the Mothership checks and deploy (the MOTHERSHIP_* constants
+//     below can be left empty);
+//   - leave [ci skip] off the version bump commit, so the tag push starts
+//     the deploy workflow;
+//   - on X.Y.Z releases, set "Stable tag:" in readme.txt to the new version
+//     in the bump commit. Prereleases leave it alone.
+// readme.txt must have a "Stable tag:" line; without one, both scripts exit
+// before releasing anything. Only true opts in. Undefined/false (the
+// default) releases through Mothership.
+// define('WP_SCRIPT_WPORG_ONLY', true);
+
 // ===== Mothership / deploy =====
 define('MY_PLUGIN_MAIN_FILE', 'main.php');
 define('MOTHERSHIP_URL','');
