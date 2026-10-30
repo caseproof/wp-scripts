@@ -145,6 +145,22 @@ And (if you have a mothership project associated with this git repo)
 ./script/deploy 1.1.1b7
 ```
 
+### Releasing to wordpress.org (`WP_SCRIPT_WPORG_ONLY`)
+
+`mcdeployall` and `mcdevdeploy` deploy every release to Mothership. A plugin hosted on wordpress.org, deployed by a workflow that runs when a version tag is pushed, opts out in its `wp-script-config.php`:
+
+```
+define('WP_SCRIPT_WPORG_ONLY', true);
+```
+
+For that plugin `mcdeployall` and `mcdevdeploy`:
+
+- skip the Mothership checks and deploy, so the `MOTHERSHIP_*` constants can be left empty;
+- leave `[ci skip]` off the version bump commit. The release tag points at that commit, and GitHub starts no push workflows for a commit whose message contains `[ci skip]`, tag pushes included;
+- on `X.Y.Z` releases, set `Stable tag:` in `readme.txt` to the new version in the bump commit, since wordpress.org serves the tag that line names. Prereleases leave it alone.
+
+Only `true` opts in. If `readme.txt` has no `Stable tag:` line, `mcdeployall` stops before releasing any plugin, and `mcdevdeploy` stops before running any git command. Plugins that do not define the constant release through Mothership with `[ci skip]` on the bump commit.
+
 
 
 
